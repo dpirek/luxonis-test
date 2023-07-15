@@ -1,0 +1,15 @@
+{
+  "name": "luxonis-test",
+  "version": "1.0.0",
+  "description": "Houses For Sale",
+  "main": "server.js",
+  "scripts": {
+    "scrape": "node job.scrape.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "license": "ISC"
+}
