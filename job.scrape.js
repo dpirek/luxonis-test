@@ -19,7 +19,7 @@ function request(url) {
   });
 }
 
-const scrape = async () => {
+async function scrape() {
   const response = await request(`${base}${path}${query}`);
   const data = JSON.parse(response);
 
