@@ -1,9 +1,11 @@
 import http from 'http';
-import fs from 'fs';
+import sql from './db.js'
 
-const PORT = 8080;
-const data = fs.readFileSync('data.json');
-const estates = JSON.parse(data);
+const PORT = process.env.PORT ? process.env.PORT : 8080;
+
+async function select() {
+  return await sql`SELECT * FROM estates`;
+}
 
 const formatPrice = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -41,7 +43,7 @@ function Page({ estates, page }) {
                 return `
                 <div class="col">
                   <div class="card shadow-sm">
-                    <img width="100%" height="225" src="${estate?._links?.images[0]?.href}" />
+                    <img width="100%" height="225" src="${estate?.image}" />
                     <div class="card-body">
                       <p class="card-text">${estate.name} ${estate?.locality}</p>
                       <div class="d-flex justify-content-between align-items-center">
@@ -83,7 +85,12 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const page = Number(url.searchParams.get('page')) || 1;
  
-  res.end(Page({ estates, page: page }));
+  select().then(estates => {
+    console.log(estates[0], estates.length);
+    res.end(Page({ estates: estates, page: page }));
+  });
+
+  
 });
 
 server.listen(PORT, () => {

@@ -1,6 +1,6 @@
 
 import https from 'https';
-import fs from 'fs';
+import sql from './db.js'
 
 const base = 'https://www.sreality.cz';
 const path = '/api/cs/v2/estates';
@@ -19,11 +19,31 @@ function request(url) {
   });
 }
 
+async function createTable() {
+  await sql`CREATE TABLE estates (name TEXT, price INTEGER, locality TEXT, image TEXT)`;
+}
+
+async function insertRecord({name, price, locality, image }) {
+  await sql`INSERT INTO estates ( name, price, locality, image) VALUES (${name}, ${price}, ${locality}, ${image})`;
+}
+
 async function scrape() {
   const response = await request(`${base}${path}${query}`);
   const data = JSON.parse(response);
 
-  fs.writeFileSync('data.json', JSON.stringify(data._embedded.estates, null, 2));
+  await sql`DROP TABLE estates`;
+  await createTable();
+  jsonData.forEach(l => {
+    if(l.name && l.price && l.locality && l._links?.images[0]?.href) {
+      insertRecord({
+        name: l.name, 
+        price: l.price, 
+        locality: l.locality, 
+        image: l._links?.images[0]?.href
+      })
+    }
+  });
+
   console.log('Response Match:', data._embedded.estates.length === perPage);
 }
 
